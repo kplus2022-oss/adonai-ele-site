@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Holistic Healing Salon - Adonai ere -</title>
+<link rel="icon" type="image/png" href="素材/JE.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  body { margin: 0; background: #F6F5F0; }
+  .font-serif { font-family: 'Shippori Mincho', serif; }
+  .vertical-text { writing-mode: vertical-rl; letter-spacing: 0.2em; }
+  .fluid-shape {
+    animation: morph 15s ease-in-out infinite alternate;
+    background: linear-gradient(135deg, rgba(17,18,17,0.03) 0%, rgba(17,18,17,0.01) 100%);
+    backdrop-filter: blur(12px);
+  }
+  @keyframes morph {
+    0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+    50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+    100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  }
+  @keyframes scroll-line {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+  .animate-scroll-line { animation: scroll-line 2.5s cubic-bezier(0.65,0,0.35,1) infinite; }
+  @keyframes hero-veil {
+    0%   { opacity: 0.35; background-position: 0% 0%; }
+    50%  { opacity: 0.55; background-position: 100% 100%; }
+    100% { opacity: 0.35; background-position: 0% 0%; }
+  }
+  .hero-veil {
+    background: radial-gradient(ellipse at 30% 40%, rgba(0,0,0,0.45), rgba(0,0,0,0.15) 55%, rgba(0,0,0,0) 80%);
+    background-size: 200% 200%;
+    animation: hero-veil 9s ease-in-out infinite;
+  }
+  .reveal-target { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.16,1,0.3,1); }
+  .reveal-target.is-revealed { opacity: 1; transform: translateY(0); }
+  .reveal-blur { opacity: 0; filter: blur(10px); transform: scale(1.05); transition: all 1.5s cubic-bezier(0.16,1,0.3,1); }
+  .reveal-blur.is-revealed { opacity: 1; filter: blur(0); transform: scale(1); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+  .timeline-dot { transform: scale(0); transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.1s; }
+  .is-revealed .timeline-dot { transform: scale(1); }
+  .timeline-inner-dot { opacity: 0; transition: opacity 0.8s ease 0.5s; }
+  .is-revealed .timeline-inner-dot { opacity: 1; }
+  .timeline-line { transform: scaleY(0); transform-origin: top; transition: transform 1.2s cubic-bezier(0.16,1,0.3,1) 0.4s; }
+  .is-revealed .timeline-line { transform: scaleY(1); }
+  html { scroll-behavior: smooth; }
+  .reveal-fade { opacity: 0; transition: opacity 3s ease-in-out; }
+  .reveal-fade.is-revealed { opacity: 1; }
+  .menu-btn svg { transition: transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+  .menu-btn:hover svg { transform: rotate(90deg) scale(1.1); }
+  .menu-btn svg line { transform-origin: center; transition: transform 0.4s ease, stroke-width 0.3s ease; }
+  .menu-btn:hover svg line:nth-child(1) { transform: translateY(1px) scaleX(0.7); }
+  .menu-btn:hover svg line:nth-child(3) { transform: translateY(-1px) scaleX(0.7); }
+  .menu-btn:hover svg line { stroke-width: 1.5; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect } = React;
+
+const Icon = ({ d, size = 24, strokeWidth = 2, className = '', children }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round"
+    strokeLinejoin="round" className={className}>
+    {children || <path d={d} />}
+  </svg>
+);
+const ChevronDown = (p) => <Icon {...p}><polyline points="6 9 12 15 18 9"/></Icon>;
+const ArrowRight  = (p) => <Icon {...p}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></Icon>;
+const Clock       = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></Icon>;
+const Calendar    = (p) => <Icon {...p}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></Icon>;
+const Menu        = (p) => <Icon {...p}><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></Icon>;
+const X           = (p) => <Icon {...p}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></Icon>;
+
+function App() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [scrollY, setScrollY] = useState(0);
+  const [faqOpen, setFaqOpen] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 30;
+      setMousePos({ x, y });
+    };
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('is-revealed'); });
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+    document.querySelectorAll('.reveal-target, .reveal-blur, .reveal-fade').forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  const toggleFaq = (index) => setFaqOpen(faqOpen === index ? null : index);
+
+  return (
+    <div className="min-h-screen bg-[#F6F5F0] text-[#111211] font-serif overflow-hidden selection:bg-[#111211]/10 selection:text-[#111211]">
+      <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] fluid-shape opacity-60 pointer-events-none z-0 transition-transform duration-1000 ease-out"
+        style={{ transform: `translate(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px)` }} />
+      <div className="fixed bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] fluid-shape opacity-50 pointer-events-none z-0 transition-transform duration-1000 ease-out"
+        style={{ transform: `translate(${mousePos.x * -0.5}px, ${mousePos.y * -0.5}px)`, animationDelay: '-7s' }} />
+
+      <header className={`fixed top-0 left-0 w-full z-50 px-6 transition-all duration-700 ${scrollY > 50 ? 'py-4 bg-white/80 backdrop-blur-md border-b border-[#111211]/10 shadow-sm text-[#111211]' : 'py-6 bg-transparent border-transparent text-white drop-shadow-md'}`}>
+        <div className="max-w-7xl mx-auto flex justify-between items-center reveal-target is-revealed">
+          <a href="#" className="flex items-center gap-3">
+            <img src="素材/JE.png" alt="アドナイエレ" className="h-10 md:h-12 w-auto object-contain" />
+            <span className="text-sm md:text-base tracking-widest font-light font-sans uppercase">
+              Holistic Healing Salon <span className="hidden md:inline">&nbsp;</span><br className="md:hidden" />-Adonai ere-
+            </span>
+          </a>
+          <div className="flex items-center gap-6 md:gap-8">
+            <button className={`text-sm tracking-widest border-b pb-1 transition-colors shrink-0 ${scrollY > 50 ? 'border-[#111211]/30 hover:border-[#111211]' : 'border-white/50 hover:border-white'}`}>ご予約</button>
+            <button onClick={() => setIsMenuOpen(true)} className="menu-btn relative p-2 -mr-2" aria-label="メニューを開く">
+              <Menu size={28} strokeWidth={1} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className={`fixed inset-0 z-[60] bg-[#F6F5F0]/95 backdrop-blur-xl transition-all duration-700 overflow-y-auto ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+        <button onClick={() => setIsMenuOpen(false)} className="absolute top-6 right-6 md:top-8 md:right-8 hover:opacity-70 transition-opacity p-2 z-10" aria-label="メニューを閉じる">
+          <X size={32} strokeWidth={1} />
+        </button>
+        <div className="min-h-full w-full flex flex-col justify-center items-center py-24">
+          <nav className="flex flex-col items-center gap-6 md:gap-8">
+            {[
+              { label: 'Concept', name: 'アドナイエレの考え方' },
+              { label: 'Services', name: '提供メニュー' },
+              { label: 'Flow', name: 'ご利用の流れ' },
+              { label: 'Profile', name: '代表プロフィール' },
+              { label: 'News & Blog', name: 'お知らせ・活動報告' },
+              { label: 'FAQ', name: 'よくある質問' },
+            ].map((item, i) => (
+              <div key={i} className={`text-center group transition-all duration-1000 ease-out ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+                style={{ transitionDelay: isMenuOpen ? `${150 + i * 100}ms` : '0ms' }}>
+                <a href={`#${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`} onClick={() => setIsMenuOpen(false)}
+                  className="flex flex-col items-center text-[#111211]/80 hover:text-[#111211] transition-colors">
+                  <span className="text-lg md:text-2xl tracking-widest font-light font-serif mb-1">{item.name}</span>
+                  <span className="text-[10px] md:text-xs tracking-[0.4em] text-[#111211]/40 font-sans uppercase">{item.label}</span>
+                </a>
+              </div>
+            ))}
+            <div className={`transition-all duration-1000 ease-out ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+              style={{ transitionDelay: isMenuOpen ? `${150 + 6 * 100}ms` : '0ms' }}>
+              <a href="#contact" onClick={() => setIsMenuOpen(false)}
+                className="inline-block mt-6 md:mt-8 px-8 md:px-10 py-3 md:py-4 border border-[#111211]/30 rounded-full text-sm md:text-base tracking-widest hover:bg-[#111211] hover:text-[#F6F5F0] transition-colors duration-500">
+                ご予約・お問い合わせ
+              </a>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <div className="hidden md:flex fixed right-4 lg:right-6 top-1/2 -translate-y-1/2 z-40 vertical-text text-[10px] lg:text-xs tracking-[0.4em] font-sans font-light uppercase text-[#111211]/70 pointer-events-none mix-blend-difference" style={{ color: '#fff' }}>
+        Holistic Healing Salon &nbsp;-Adonai ere-
+      </div>
+
+      <main className="relative z-10">
+        <section className="relative h-[100dvh] min-h-[700px] w-full flex items-center justify-center overflow-hidden bg-[#F6F5F0]">
+          <div className="absolute inset-0 z-0 scale-[1.15] transition-transform duration-75 ease-out"
+            style={{
+              backgroundImage: 'url("素材/DSC05277.jpg")',
+              backgroundSize: 'cover', backgroundPosition: 'center',
+              transform: `translate3d(0, ${scrollY * 0.3}px, 0)`
+            }}>
+            <div className="absolute inset-0 hero-veil pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#111211]/60" />
+          </div>
+
+          <div className="absolute inset-0 w-full h-full max-w-6xl mx-auto pointer-events-none z-10 mix-blend-screen">
+            <div className="hidden md:flex absolute bottom-0 right-[4%] md:right-[10%] lg:right-[15%] top-[15%] md:top-[20%] bg-white/80 backdrop-blur-md border-x border-t border-white/60 px-5 md:px-10 pt-12 md:pt-20 justify-center pointer-events-auto reveal-fade shadow-2xl">
+              <h1 className="text-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-[2.2] md:leading-[2.5] vertical-text">
+                人は、<br />いつからでも<br />生き直せる。
+              </h1>
+            </div>
+          </div>
+
+          <div className="md:hidden absolute left-6 right-6 sm:left-10 sm:right-10 bottom-[260px] sm:bottom-[280px] pointer-events-none z-10 mix-blend-screen">
+            <div className="bg-white/80 backdrop-blur-md border border-white/60 shadow-2xl rounded-2xl px-6 py-8 reveal-fade">
+              <h1 className="text-black text-4xl sm:text-5xl font-bold leading-[1.5]">
+                人は、いつからでも<br />生き直せる。
+              </h1>
+            </div>
+          </div>
+
+          <div className="absolute inset-0 w-full h-full max-w-6xl mx-auto pointer-events-none z-20">
+            <div className="absolute bottom-32 md:bottom-40 left-6 sm:left-10 md:left-[10%] flex flex-col items-start pointer-events-auto max-w-[85%] sm:max-w-[70%] md:max-w-[45%] lg:max-w-[40%]">
+              <p className="text-xs sm:text-sm md:text-sm lg:text-base xl:text-xl tracking-wide md:tracking-widest font-medium mb-8 md:mb-12 text-left leading-relaxed md:leading-loose text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] reveal-target is-revealed" style={{ transitionDelay: '0.8s' }}>
+                食・身体・心・環境を整え直し、<br />自分を取り戻すための実践サポート
+              </p>
+              <a href="#contact" className="group relative inline-flex items-center justify-center px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 bg-white/80 backdrop-blur-md border border-white/60 rounded-full hover:bg-white hover:scale-110 active:scale-95 transition-[transform,background-color,box-shadow] duration-300 ease-out overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.5)] hover:shadow-[0_0_30px_rgba(255,255,255,0.9)] mix-blend-screen">
+                <span className="tracking-widest text-xs sm:text-sm md:text-base mr-3 z-10 font-bold text-black">お問い合わせする</span>
+                <ArrowRight size={18} strokeWidth={2.5} className="group-hover:translate-x-2 transition-transform z-10 text-black" />
+              </a>
+            </div>
+          </div>
+
+          <div className="absolute bottom-6 md:bottom-12 right-4 md:right-10 flex flex-col items-center opacity-70 z-20 reveal-target is-revealed" style={{ transitionDelay: '1.8s' }}>
+            <span className="text-[9px] md:text-[10px] tracking-[0.3em] mb-2 md:mb-4 vertical-text font-sans font-light uppercase text-white drop-shadow-md">Scroll</span>
+            <div className="w-[1px] h-16 md:h-24 bg-white/40 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-full bg-white animate-scroll-line" />
+            </div>
+          </div>
+        </section>
+
+        <section className="py-32 px-6 max-w-5xl mx-auto">
+          <div className="text-center mb-20 reveal-target">
+            <h2 className="text-3xl md:text-4xl tracking-widest font-light mb-6">こんなお悩みはありませんか</h2>
+            <div className="w-12 h-px bg-[#111211]/30 mx-auto" />
+          </div>
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+            {[
+              { title: "原因不明の不調", text: "心身の不調が続いており、何から整えればよいかわからない", img: "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
+              { title: "感情・リズムの乱れ", text: "感情の波が大きい、疲れやすい、生活リズムが乱れやすい", img: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
+              { title: "自己否定の悪循環", text: "自分を責めやすく、ひとりでは立て直しにくい", img: "https://images.unsplash.com/photo-1444312645910-ffa973656eba?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
+              { title: "根本的な見直し", text: "心だけでなく、身体や生活環境も含めて見直したい", img: "https://images.unsplash.com/photo-1490682143684-14369e18dce8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" }
+            ].map((item, i) => (
+              <div key={i} className={`relative overflow-hidden group rounded-3xl border border-[#111211]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-700 reveal-target reveal-delay-${(i % 2) + 1} h-64 md:h-80 flex items-end`}>
+                <div className="absolute inset-0 bg-[#F6F5F0]">
+                  <img src={item.img} alt="" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-80 group-hover:opacity-100" />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#111211]/80 via-[#111211]/30 to-transparent" />
+                <div className="relative z-10 p-8 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
+                  <h3 className="text-xl md:text-2xl tracking-widest font-medium text-white mb-3 drop-shadow-lg">{item.title}</h3>
+                  <div className="w-8 h-px bg-white/60 mb-4" />
+                  <p className="tracking-wide leading-relaxed font-light text-white/90 text-sm drop-shadow-md">{item.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="py-40 px-6 relative overflow-hidden" id="concept">
+          <div className="absolute inset-0 z-0 opacity-40 bg-fixed bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80")' }} />
+          <div className="absolute inset-0 bg-[#F6F5F0]/75 z-0 backdrop-blur-sm" />
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="text-center mb-24 reveal-target">
+              <span className="block text-sm tracking-[0.3em] mb-4 text-[#111211]/50 uppercase font-sans">Concept</span>
+              <h2 className="text-3xl md:text-5xl tracking-widest font-light mb-8 leading-tight">アドナイエレの考え方</h2>
+              <div className="w-12 h-px bg-[#111211]/20 mx-auto mb-8" />
+              <p className="max-w-3xl mx-auto tracking-wide leading-loose font-medium text-[#111211]/80">
+                不調や生きづらさを「性格」や「根性」の問題としてではなく、<br className="hidden md:block" />
+                絡み合った"状態"の問題として見つめ直します。
+              </p>
+            </div>
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 md:gap-6 w-full -mx-6 px-6 pb-4 lg:grid lg:grid-cols-5 lg:overflow-visible lg:mx-0 lg:px-0 lg:pb-0 scrollbar-thin">
+              {[
+                { title: "状態理解", desc: "今の心身の整理", img: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
+                { title: "身体の土台", desc: "食事・睡眠・疲労・リズム", img: "https://images.unsplash.com/photo-1490818387583-1baba5e638af?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
+                { title: "心の整理", desc: "自己否定・反応パターンの整理", img: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
+                { title: "環境の見直し", desc: "人間関係・役割負担の調整", img: "https://images.unsplash.com/photo-1513694203232-719a280e022f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
+                { title: "再建サポート", desc: "少しずつ続けられる実践", img: "https://images.unsplash.com/photo-1463936575829-25148e1db1b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" }
+              ].map((item, i) => (
+                <div key={i} className={`relative overflow-hidden group rounded-3xl border border-[#111211]/10 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-700 reveal-target reveal-delay-${(i % 3) + 1} flex flex-col justify-end aspect-square md:aspect-auto md:min-h-[280px] bg-white shrink-0 snap-center w-[75%] sm:w-[45%] lg:w-auto`}>
+                  <div className="absolute inset-0 z-0">
+                    <img src={item.img} alt="" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-80" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#111211]/80 via-[#111211]/20 to-transparent" />
+                  </div>
+                  <div className="absolute top-4 right-5 text-5xl font-sans font-bold text-white/30 group-hover:text-white/50 transition-colors pointer-events-none transform group-hover:scale-105 duration-500 z-10 drop-shadow-md">0{i + 1}</div>
+                  <div className="relative z-20 p-6 md:p-5">
+                    <h3 className="text-lg md:text-xl tracking-widest mb-3 font-medium leading-relaxed text-white drop-shadow-md">{item.title}</h3>
+                    <p className="text-xs text-white/90 tracking-wider font-light leading-relaxed drop-shadow-md">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-40 px-6 relative overflow-hidden" id="services">
+          <div className="absolute inset-0 z-0 opacity-20 bg-fixed bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80")' }} />
+          <div className="absolute inset-0 bg-[#F6F5F0]/80 z-0 backdrop-blur-sm" />
+          <div className="max-w-6xl mx-auto relative z-10">
+            <div className="text-center mb-24 reveal-target">
+              <span className="block text-sm tracking-[0.3em] mb-4 text-[#111211]/50 uppercase font-sans">Services</span>
+              <h2 className="text-3xl md:text-4xl tracking-widest font-light mb-6">提供メニュー</h2>
+              <div className="w-12 h-px bg-[#111211]/20 mx-auto mb-8" />
+              <p className="tracking-wide font-medium text-[#111211]/70">今の状態に合わせて、最適なサポートをご提案します。</p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+              {[
+                { label: "はじめての方へ", title: "状態チェックセッション", meta: [{ icon: <Clock size={16} strokeWidth={1.5} />, text: "90分" }, { text: "13,200円" }], desc: "今の心身の状態を丁寧に見立て、絡み合った糸を解きほぐすための方向性を提案する、すべての入り口となるセッションです。" },
+                { label: "メインプログラム", title: "心身再設計 3か月プログラム", meta: [{ text: "220,000円〜" }], desc: "食・身体・心・環境を深く整え直すオンライン伴走型（対面サポート付あり）。" },
+                { label: "継続サポート", title: "再生メンテナンス会員", meta: [], desc: "継続的に状態を確認し、整えたい方向け。" },
+                { label: "オプションケア", title: "温熱療法", meta: [], desc: "身体から直接アプローチする対面サポート。" }
+              ].map((item, i) => (
+                <div key={i} className={`bg-white/70 backdrop-blur-md border border-[#111211]/5 shadow-sm p-8 md:p-10 rounded-[2.5rem] hover:bg-white hover:shadow-xl hover:border-[#111211]/10 transition-all duration-500 flex flex-col reveal-target reveal-delay-${i + 1} hover:-translate-y-2`}>
+                  <div className="mb-6">
+                    <span className="inline-block px-4 py-1.5 bg-[#111211]/5 rounded-full text-xs tracking-widest font-sans text-[#111211]">{item.label}</span>
+                  </div>
+                  <h3 className="text-2xl md:text-3xl tracking-widest mb-4 font-medium leading-tight">{item.title}</h3>
+                  {item.meta.length > 0 && (
+                    <div className="flex items-center gap-6 text-[#111211]/70 text-sm mb-6 font-sans">
+                      {item.meta.map((m, idx) => (
+                        <span key={idx} className={`flex items-center gap-1.5 ${m.icon ? '' : 'font-light tracking-wider'}`}>
+                          {m.icon && m.icon}{m.text}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {item.meta.length === 0 && <div className="mb-6 h-5 md:h-6"></div>}
+                  <p className="tracking-wide leading-relaxed font-light mb-10 text-[#111211]/80 text-base">{item.desc}</p>
+                  <button className="mt-auto w-full px-8 py-4 border border-[#111211]/20 rounded-full tracking-widest hover:bg-[#111211] hover:text-[#F6F5F0] transition-colors duration-500 font-medium text-sm flex justify-center items-center group">
+                    詳細を見る
+                    <ArrowRight size={16} className="ml-2 opacity-70 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-40 px-6" id="flow">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-24 reveal-target">
+              <span className="block text-sm tracking-[0.3em] mb-4 text-[#111211]/50 uppercase font-sans">Flow</span>
+              <h2 className="text-3xl tracking-widest font-light mb-6">ご利用の流れ</h2>
+              <div className="w-12 h-px bg-[#111211]/20 mx-auto" />
+            </div>
+            <div className="ml-4 md:ml-12">
+              {[
+                { step: "01", title: "状態チェックセッション", desc: "現状の整理と見立てを行います。絡み合った問題の糸口を見つけます。" },
+                { step: "02", title: "目的に応じたプランの選択", desc: "3ヶ月プログラムや継続サポートなど、最適な実践プランをご提案します。" },
+                { step: "03", title: "実践と振り返り", desc: "日常での実践と、定期的な振り返り（必要に応じて温熱療法など）を繰り返します。" }
+              ].map((item, i, arr) => (
+                <div key={i} className={`relative pl-12 md:pl-20 ${i !== arr.length - 1 ? 'pb-24' : ''} reveal-target`}>
+                  <div className="absolute -left-4 top-0 w-8 h-8 bg-white border-[2px] border-[#111211]/20 rounded-full flex items-center justify-center z-10 timeline-dot shadow-sm">
+                    <div className="w-2 h-2 bg-[#111211] rounded-full timeline-inner-dot" />
+                  </div>
+                  {i !== arr.length - 1 && (
+                    <div className="absolute left-0 top-8 bottom-0 w-[1px] bg-[#111211]/10 z-0">
+                      <div className="absolute top-0 left-0 w-full h-full bg-[#111211]/40 timeline-line" />
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-[#111211]/30 font-sans text-3xl mb-3 font-light tracking-wider">Step {item.step}</div>
+                    <h3 className="text-xl md:text-2xl tracking-widest mb-4 font-medium">{item.title}</h3>
+                    <p className="tracking-wide leading-relaxed font-light text-[#111211]/70">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-40 px-6 relative overflow-hidden" id="profile">
+          <div className="absolute inset-0 z-0 bg-fixed bg-cover bg-center" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1513002749550-c59d220818a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80")' }} />
+          <div className="absolute inset-0 bg-white/20 z-0" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#F6F5F0] via-transparent to-transparent z-0" />
+          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-white rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2 pointer-events-none z-0 opacity-20" />
+          <div className="max-w-6xl mx-auto relative z-10">
+            <div className="grid md:grid-cols-2 gap-20 items-center">
+              <div className="order-2 md:order-1 reveal-target">
+                <span className="block text-sm tracking-[0.3em] mb-4 text-[#111211]/50 uppercase font-sans">Profile</span>
+                <h2 className="text-3xl tracking-widest font-light mb-4">代表プロフィール</h2>
+                <div className="w-12 h-px bg-[#111211]/20 mb-10" />
+                <h3 className="text-2xl tracking-widest mb-10 font-medium">串田 大我</h3>
+                <div className="space-y-6 text-[#111211]/80 tracking-wide leading-relaxed font-light">
+                  <p>幼少期からの困難、人生の崩壊（非行・服役等）を経験。絶望の淵から、食・身体・心・環境の深い繋がりを学び、自らの手で人生を生き直す。</p>
+                  <p>その壮絶な実体験こそが、現在の支援の揺るぎない根拠となっています。</p>
+                  <p>現在は当サロンの運営のほか、教育活動や講演を通し、本質的な視点を伝えています。</p>
+                </div>
+              </div>
+              <div className="order-1 md:order-2 flex justify-center reveal-blur">
+                <div className="p-4 bg-white/60 backdrop-blur-sm rounded-[3.5rem] border border-[#111211]/10 shadow-lg max-w-md w-full relative">
+                  <div className="absolute inset-0 border border-[#111211]/5 rounded-[3.5rem] scale-[1.03] pointer-events-none" />
+                  <img src="素材/prof.jpg" alt="代表 串田 大我" className="w-full aspect-[4/5] object-cover rounded-[3rem] transition-all duration-1000" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-40 px-6" id="news-blog">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-20 reveal-target">
+              <div>
+                <span className="block text-sm tracking-[0.3em] mb-4 text-[#111211]/50 uppercase font-sans">News & Blog</span>
+                <h2 className="text-3xl tracking-widest font-light">お知らせ・活動報告</h2>
+              </div>
+              <button className="mt-6 md:mt-0 text-sm tracking-widest border-b border-[#111211]/30 pb-1 hover:border-[#111211] transition-colors font-sans font-medium">一覧を見る</button>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                { date: "2024.04.15", category: "News", title: "ゴールデンウィーク期間中の営業について", img: "https://images.unsplash.com/photo-1543616991-75a2f143ddfb?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
+                { date: "2024.04.02", category: "Blog", title: "「状態」を整えるということ。春の揺らぎに向けて", img: "https://images.unsplash.com/photo-1476231682828-37e571bc172f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
+                { date: "2024.03.20", category: "Event", title: "【講演報告】◯◯高校にて人生再生に関するお話をしました", img: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" }
+              ].map((post, i) => (
+                <div key={i} className={`group cursor-pointer reveal-target reveal-delay-${i+1}`}>
+                  <div className="overflow-hidden rounded-3xl mb-6 relative shadow-sm">
+                    <div className="absolute inset-0 bg-[#111211]/5 group-hover:bg-transparent transition-colors duration-500 z-10" />
+                    <img src={post.img} alt={post.title} className="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-1000 ease-out" />
+                  </div>
+                  <div className="flex items-center gap-4 text-xs font-sans text-[#111211]/60 mb-4 tracking-widest">
+                    <span>{post.date}</span>
+                    <span className="px-3 py-1 border border-[#111211]/20 rounded-full">{post.category}</span>
+                  </div>
+                  <h3 className="text-lg tracking-wide font-medium leading-relaxed group-hover:text-[#111211]/70 transition-colors duration-300">{post.title}</h3>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-40 px-6 bg-[#f0efe9]" id="faq">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-20 reveal-target">
+              <span className="block text-sm tracking-[0.3em] mb-4 text-[#111211]/50 uppercase font-sans">FAQ</span>
+              <h2 className="text-3xl tracking-widest font-light mb-6">よくある質問</h2>
+              <div className="w-12 h-px bg-[#111211]/20 mx-auto" />
+            </div>
+            <div className="space-y-4">
+              {[
+                { q: "医療機関に通院中ですが、セッションを受けられますか？", a: "はい、可能です。当サロンは医療行為を行う場所ではなく、生活・環境・心の状態を整えるサポートを行います。" },
+                { q: "オンラインでの受講は可能ですか？", a: "はい。状態チェックセッションや3か月プログラムは、基本的にオンラインで対応可能です。" },
+                { q: "温熱療法だけの利用はできますか？", a: "温熱療法単発でのご利用も可能ですが、状態チェックセッションからのご利用を推奨しております。" }
+              ].map((faq, i) => (
+                <div key={i} className={`border border-[#111211]/10 rounded-2xl bg-white/60 overflow-hidden shadow-sm reveal-target reveal-delay-${i+1}`}>
+                  <button onClick={() => toggleFaq(i)} className="w-full flex justify-between items-center p-8 text-left hover:bg-white transition-colors">
+                    <span className="tracking-wide font-medium pr-4 text-lg">{faq.q}</span>
+                    <ChevronDown className={`shrink-0 transition-transform duration-500 text-[#111211]/50 ${faqOpen === i ? 'rotate-180' : ''}`} size={20} />
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-500 ease-in-out ${faqOpen === i ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <div className="p-8 pt-0 text-[#111211]/70 font-light tracking-wide leading-relaxed">{faq.a}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" className="py-40 px-6 relative overflow-hidden">
+          <div className="absolute inset-0 z-0 opacity-30 bg-fixed bg-cover bg-center" style={{ backgroundImage: 'url("素材/DSC05288.JPG")' }} />
+          <div className="absolute inset-0 bg-[#F6F5F0]/75 z-0 backdrop-blur-sm" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] max-w-4xl h-[600px] bg-gradient-to-r from-white/40 via-white/80 to-white/40 rounded-[100%] blur-[100px] pointer-events-none z-0" />
+          <div className="max-w-4xl mx-auto bg-white/80 backdrop-blur-xl border border-[#111211]/10 p-12 md:p-24 rounded-[3.5rem] text-center relative z-10 shadow-xl reveal-blur">
+            <span className="block text-sm tracking-[0.3em] mb-6 text-[#111211]/50 uppercase font-sans">Reservation</span>
+            <h2 className="text-3xl md:text-5xl tracking-widest font-light mb-8">ご予約・お問い合わせ</h2>
+            <div className="w-16 h-px bg-[#111211]/20 mx-auto mb-10" />
+            <p className="tracking-wide font-medium text-[#111211]/80 mb-16 leading-relaxed text-lg">まずは状態チェックセッションへお申し込みください。</p>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
+              <button className="group relative inline-flex items-center justify-center w-full md:w-auto px-14 py-6 bg-[#111211] text-[#F6F5F0] rounded-full hover:bg-[#333] hover:scale-105 transition-all duration-300 shadow-lg">
+                <Calendar className="mr-3" size={20} strokeWidth={1.5} />
+                <span className="tracking-widest font-medium text-lg">予約カレンダーを見る</span>
+              </button>
+              <a href="mailto:info@example.com" className="group relative inline-flex items-center justify-center w-full md:w-auto px-14 py-6 bg-transparent text-[#111211] border border-[#111211]/30 rounded-full hover:bg-[#111211] hover:text-[#F6F5F0] hover:scale-105 transition-all duration-300 shadow-sm">
+                <span className="tracking-widest font-medium text-lg">お問い合わせ</span>
+                <ArrowRight size={18} strokeWidth={1.5} className="ml-3 group-hover:translate-x-1 transition-transform" />
+              </a>
+            </div>
+            <p className="mt-8 text-xs text-[#111211]/50 tracking-widest font-sans">※外部予約システムへ移動します</p>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-[#111211]/10 pt-24 pb-12 px-6 relative z-10 bg-[#ebeae4]">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 mb-24 text-center md:text-left">
+          <div className="reveal-target">
+            <img src="素材/IMG_9665.jpg" alt="アドナイエレ" className="h-40 md:h-48 w-auto object-contain mb-8 mx-auto md:mx-0" />
+            <p className="text-sm text-[#111211]/70 tracking-widest leading-loose font-light">
+              Holistic Healing Salon<br />食・身体・心・環境を整え直し、<br />自分を取り戻すための実践サポート
+            </p>
+          </div>
+          <div className="flex flex-col md:items-end justify-start space-y-6 text-sm tracking-widest font-medium text-[#111211]/60 font-sans reveal-target reveal-delay-2">
+            <a href="#" className="hover:text-[#111211] transition-colors">Instagram</a>
+            <a href="#" className="hover:text-[#111211] transition-colors">Facebook</a>
+            <div className="h-4"></div>
+            <a href="#" className="hover:text-[#111211] transition-colors">プライバシーポリシー</a>
+            <a href="#" className="hover:text-[#111211] transition-colors">特定商取引法に基づく表記</a>
+          </div>
+        </div>
+        <div className="text-center text-xs text-[#111211]/40 tracking-widest font-sans">&copy; {new Date().getFullYear()} Adonai-ele. All Rights Reserved.</div>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
