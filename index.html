@@ -119,20 +119,49 @@
     }
   }
 
-  /* iPad landscape: prevent footer brand text and link list from overlapping */
-  @media (min-width: 768px) and (max-width: 1180px) and (orientation: landscape) {
-    .footer-grid {
-      grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.9fr);
+  .footer-layout {
+    align-items: start;
+  }
+
+  .footer-brand-copy {
+    max-width: 34rem;
+  }
+
+  .footer-link-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.95rem;
+    align-items: flex-start;
+  }
+
+  .footer-link-list a {
+    transition: color 0.3s ease;
+  }
+
+  .footer-link-list a:hover {
+    color: #111211;
+  }
+
+  @media (min-width: 768px) {
+    .footer-layout {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr);
       column-gap: 2.5rem;
     }
 
     .footer-brand-copy {
-      max-width: 30rem;
+      max-width: 22rem;
+    }
+  }
+
+  /* iPad landscape: keep each footer block independent and readable */
+  @media (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) {
+    .footer-layout {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: 2rem;
     }
 
-    .footer-links {
-      align-items: flex-start;
-      padding-left: 1.25rem;
+    .footer-brand-copy {
+      max-width: 19rem;
     }
   }
 </style>
@@ -551,19 +580,33 @@ function App() {
       </main>
 
       <footer className="border-t border-[#111211]/10 pt-24 pb-12 px-6 relative z-10 bg-[#ebeae4]">
-        <div className="footer-grid max-w-6xl mx-auto grid md:grid-cols-2 gap-16 mb-24 text-center md:text-left">
+        <div className="footer-layout max-w-6xl mx-auto grid grid-cols-1 gap-14 md:gap-10 mb-24 text-left">
           <div className="reveal-target">
             <img src="素材/IMG_9665.jpg" alt="アドナイエレ" className="h-40 md:h-48 w-auto object-contain mb-8 mx-auto md:mx-0" />
             <p className="footer-brand-copy text-sm text-[#111211]/70 tracking-widest leading-loose font-light">
               Holistic Healing Salon<br />食・身体・心・環境を整え直し、<br className="sm:hidden md:inline" />自分を取り戻すための実践サポート
             </p>
           </div>
-          <div className="footer-links flex flex-col md:items-end justify-start space-y-6 text-sm tracking-widest font-medium text-[#111211]/60 font-sans reveal-target reveal-delay-2">
-            <a href="#" className="hover:text-[#111211] transition-colors">Instagram</a>
-            <a href="#" className="hover:text-[#111211] transition-colors">Facebook</a>
-            <div className="h-4"></div>
-            <a href="#" className="hover:text-[#111211] transition-colors">プライバシーポリシー</a>
-            <a href="#" className="hover:text-[#111211] transition-colors">特定商取引法に基づく表記</a>
+          <div className="reveal-target reveal-delay-2">
+            <p className="text-xs tracking-[0.25em] uppercase text-[#111211]/50 font-sans mb-6">Navigation</p>
+            <nav className="footer-link-list text-sm tracking-widest font-medium text-[#111211]/60 font-sans">
+              <a href="#concept">Concept</a>
+              <a href="#services">Services</a>
+              <a href="#flow">Flow</a>
+              <a href="#profile">Profile</a>
+              <a href="#news-blog">News & Blog</a>
+              <a href="#faq">FAQ</a>
+              <a href="#contact">Reservation</a>
+            </nav>
+          </div>
+          <div className="reveal-target reveal-delay-3">
+            <p className="text-xs tracking-[0.25em] uppercase text-[#111211]/50 font-sans mb-6">Connect & Policy</p>
+            <div className="footer-link-list text-sm tracking-wider font-medium text-[#111211]/60 font-sans">
+              <a href="#">Instagram</a>
+              <a href="#">Facebook</a>
+              <a href="#">プライバシーポリシー</a>
+              <a href="#">特定商取引法に基づく表記</a>
+            </div>
           </div>
         </div>
         <div className="text-center text-xs text-[#111211]/40 tracking-widest font-sans">&copy; {new Date().getFullYear()} Adonai-ele. All Rights Reserved.</div>
