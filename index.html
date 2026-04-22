@@ -118,6 +118,23 @@
       white-space: nowrap;
     }
   }
+
+  /* iPad landscape: prevent footer brand text and link list from overlapping */
+  @media (min-width: 768px) and (max-width: 1180px) and (orientation: landscape) {
+    .footer-grid {
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.9fr);
+      column-gap: 2.5rem;
+    }
+
+    .footer-brand-copy {
+      max-width: 30rem;
+    }
+
+    .footer-links {
+      align-items: flex-start;
+      padding-left: 1.25rem;
+    }
+  }
 </style>
 </head>
 <body>
@@ -534,14 +551,14 @@ function App() {
       </main>
 
       <footer className="border-t border-[#111211]/10 pt-24 pb-12 px-6 relative z-10 bg-[#ebeae4]">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 mb-24 text-center md:text-left">
+        <div className="footer-grid max-w-6xl mx-auto grid md:grid-cols-2 gap-16 mb-24 text-center md:text-left">
           <div className="reveal-target">
             <img src="素材/IMG_9665.jpg" alt="アドナイエレ" className="h-40 md:h-48 w-auto object-contain mb-8 mx-auto md:mx-0" />
-            <p className="text-sm text-[#111211]/70 tracking-widest leading-loose font-light">
+            <p className="footer-brand-copy text-sm text-[#111211]/70 tracking-widest leading-loose font-light">
               Holistic Healing Salon<br />食・身体・心・環境を整え直し、<br className="sm:hidden md:inline" />自分を取り戻すための実践サポート
             </p>
           </div>
-          <div className="flex flex-col md:items-end justify-start space-y-6 text-sm tracking-widest font-medium text-[#111211]/60 font-sans reveal-target reveal-delay-2">
+          <div className="footer-links flex flex-col md:items-end justify-start space-y-6 text-sm tracking-widest font-medium text-[#111211]/60 font-sans reveal-target reveal-delay-2">
             <a href="#" className="hover:text-[#111211] transition-colors">Instagram</a>
             <a href="#" className="hover:text-[#111211] transition-colors">Facebook</a>
             <div className="h-4"></div>
