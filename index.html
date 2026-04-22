@@ -64,6 +64,14 @@
   .menu-btn:hover svg line:nth-child(1) { transform: translateY(1px) scaleX(0.7); }
   .menu-btn:hover svg line:nth-child(3) { transform: translateY(-1px) scaleX(0.7); }
   .menu-btn:hover svg line { stroke-width: 1.5; }
+
+  /* iPad mini portrait only: keep mobile untouched and enlarge header title for 700-767px */
+  @media (min-width: 700px) and (max-width: 767px) and (orientation: portrait) {
+    .site-title {
+      font-size: 1.12rem;
+      line-height: 1.3;
+    }
+  }
 </style>
 </head>
 <body>
@@ -127,7 +135,7 @@ function App() {
         <div className="max-w-7xl mx-auto flex justify-between items-center reveal-target is-revealed">
           <a href="#" className="flex items-center gap-2 md:gap-3 min-w-0 shrink">
             <img src="素材/JE.png" alt="アドナイエレ" className="h-9 md:h-12 w-auto object-contain shrink-0" />
-            <span className="hidden sm:inline text-sm md:text-xl lg:text-2xl tracking-widest font-light font-sans uppercase whitespace-nowrap">
+            <span className="site-title hidden sm:inline text-sm md:text-xl lg:text-2xl tracking-widest font-light font-sans uppercase whitespace-nowrap">
               Holistic Healing Salon&nbsp;&nbsp;-Adonai ere-
             </span>
             <span className="sm:hidden text-[11px] tracking-widest font-light font-sans uppercase leading-tight whitespace-nowrap">
