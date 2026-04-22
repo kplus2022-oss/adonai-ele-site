@@ -143,23 +143,13 @@
   }
 
   @media (min-width: 768px) {
-    .footer-layout {
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr);
-      column-gap: 2.5rem;
-    }
-
     .footer-brand-copy {
       max-width: 22rem;
     }
   }
 
-  /* iPad landscape: keep each footer block independent and readable */
+  /* iPad landscape: keep each footer block readable without overlap */
   @media (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) {
-    .footer-layout {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
-      column-gap: 2rem;
-    }
-
     .footer-brand-copy {
       max-width: 19rem;
     }
@@ -580,7 +570,7 @@ function App() {
       </main>
 
       <footer className="border-t border-[#111211]/10 pt-24 pb-12 px-6 relative z-10 bg-[#ebeae4]">
-        <div className="footer-layout max-w-6xl mx-auto grid grid-cols-1 gap-14 md:gap-10 mb-24 text-left">
+        <div className="footer-layout max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 lg:gap-12 mb-24 text-left">
           <div className="reveal-target">
             <img src="素材/IMG_9665.jpg" alt="アドナイエレ" className="h-40 md:h-48 w-auto object-contain mb-8 mx-auto md:mx-0" />
             <p className="footer-brand-copy text-sm text-[#111211]/70 tracking-widest leading-loose font-light">
